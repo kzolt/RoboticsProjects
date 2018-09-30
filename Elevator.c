@@ -66,7 +66,7 @@ int isEmpty(ElevatorQueue& self)
 }
 
 // Gets the element in the front of the queue
-const Floor& front(ElevatorQueue& self)
+Floor front(ElevatorQueue& self)
 {
 	if (isEmpty(self))
 	{
@@ -174,7 +174,7 @@ task go_to_floor()
 	while (!isEmpty(elv.q))
 	{
 		// Create Local Reference to the floor that we want to go to
-		const Floor& ftg = front(elv.q);
+		Floor ftg = front(elv.q);
 
 		// Checks if the Floor we're trying to go to is our current floor and just breaks
 		if (ftg == elv.current_floor)
