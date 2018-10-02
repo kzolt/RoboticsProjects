@@ -91,14 +91,10 @@ void enqueue(ElevatorQueue& self, Floor floor)
 		return;
 	}
 
-	writeDebugStream("Inserting %d\n", floor);
-
 	// Adds the element and updates rear value to be correct, same goes for the count
 	self.rear = (self.rear + 1) % self.maxsize;
 	self.data[self.rear] = floor;
 	self.count++;
-
-	writeDebugStream("Count: %d\n", self.count);
 }
 
 // Removes the element at the front by changing the location of the front
@@ -111,14 +107,9 @@ void dequeue(ElevatorQueue& self)
 		return;
 	}
 
-	writeDebugStream("Removing: %d", self.data[self.front]);
-
 	// Change location  of the front, and decrease count
 	self.front = (self.front + 1) % self.maxsize;
 	self.count--;
-
-	writeDebugStream("Front: %d, Rear: %d\n", self.front, self.rear);
-	writeDebugStream("Count: %d", self.count);
 }
 
 // Moves Elevator Either Up or Down
