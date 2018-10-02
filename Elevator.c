@@ -57,9 +57,9 @@ static Elevator elv;
 // Global Array for Floor Distances
 static int floorDistance[3] =
 {
-	 7,		// FLOOR_ONE
-	20,		// FLOOR_TWO
-	32		// FLOOR_THREE
+	 7,		// FLOOR_ONE Location
+	20,		// FLOOR_TWO Location
+	32		// FLOOR_THREE Location
 };
 
 /*************************************
@@ -110,7 +110,7 @@ void dequeue(ElevatorQueue& self)
 		return;
 	}
 
-	// Change location  of the front, and decrease count
+	// Change location of the front, and decrease count
 	self.front = (self.front + 1) % QUEUE_SIZE;
 	self.count--;
 }
