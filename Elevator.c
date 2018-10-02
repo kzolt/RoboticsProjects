@@ -33,7 +33,7 @@ typedef enum flr
 	FLOOR_THREE =  2
 } Floor;
 
-// Queue Structure For Elevator
+// Circular Queue Structure For Elevator
 typedef struct queue
 {
 	Floor data[QUEUE_SIZE];
@@ -181,7 +181,7 @@ task go_to_floor()
 
 	while (!isEmpty(elv.q))
 	{
-		// Create Local Reference to the floor that we want to go to
+		// Create Local variable to the floor that we want to go to
 		Floor ftg = front(elv.q);
 
 		// Checks if the Floor we're trying to go to is our current floor and just breaks
