@@ -166,6 +166,19 @@ void display_floor_number()
 	}
 }
 
+// Checks the position of the elevator floor using Ultra Sonic Range Finder and returns the appropriate floor
+Floor get_floor_position()
+{
+	if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_ONE])
+		return FLOOR_ONE;
+	else if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_TWO])
+		return FLOOR_TWO;
+	else if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE])
+		return FLOOR_THREE;
+
+	return FLOOR_NIL;
+}
+
 /*************************************
 TASK DEFINITIONS
 *************************************/
@@ -195,9 +208,7 @@ task go_to_floor()
 
 		// Moves to appropriate floor using sensor value
 		while (SensorValue[distanceThing] != floorDistance[(int)ftg])
-		{
 			move_elevator();
-		}
 
 		// Stops the elevator and sets current floor to be the floor we just traveled to, also removes the floor from our queue
 		elv.dir = DIR_NONE;
@@ -221,7 +232,7 @@ task main()
 	floorDistance[(int)FLOOR_THREE] = 32;
 
 	// Create main elevator structure
-	elv.current_floor = FLOOR_ONE;
+	elv.current_floor = get_floor_position();
 	elv.speed = 127;
 	elv.dir = DIR_NONE;
 	elv.running = false;
