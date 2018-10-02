@@ -36,7 +36,6 @@ typedef enum flr
 typedef struct queue
 {
 	Floor data[QUEUE_SIZE];
-	int maxsize;
 	int front;
 	int rear;
 	int count;
@@ -89,14 +88,14 @@ Floor front(ElevatorQueue& self)
 void enqueue(ElevatorQueue& self, Floor floor)
 {
 	// Checks if we exceed size, if we do, stop
-	if (self.count >= self.maxsize)
+	if (self.count >= QUEUE_SIZE)
 	{
 		writeDebugStream("[ERROR]: Overflow Error!");
 		return;
 	}
 
 	// Adds the element and updates rear value to be correct, same goes for the count
-	self.rear = (self.rear + 1) % self.maxsize;
+	self.rear = (self.rear + 1) % QUEUE_SIZE;
 	self.data[self.rear] = floor;
 	self.count++;
 }
@@ -112,7 +111,7 @@ void dequeue(ElevatorQueue& self)
 	}
 
 	// Change location  of the front, and decrease count
-	self.front = (self.front + 1) % self.maxsize;
+	self.front = (self.front + 1) % QUEUE_SIZE;
 	self.count--;
 }
 
@@ -228,7 +227,6 @@ task main()
 	elv.running = false;
 
 	// Setting up the queue
-	elv.q.maxsize = QUEUE_SIZE;
 	elv.q.front = 0;
 	elv.q.rear = -1;
 	elv.q.count = 0;
