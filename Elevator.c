@@ -56,7 +56,12 @@ typedef struct elevator
 static Elevator elv;
 
 // Global Array for Floor Distances
-static int floorDistance[3];
+static int floorDistance[3] =
+{
+	 7,		// FLOOR_ONE
+	20,		// FLOOR_TWO
+	32		// FLOOR_THREE
+};
 
 /*************************************
 FUNCTION DEFINITIONS
@@ -216,11 +221,6 @@ task go_to_floor()
 
 task main()
 {
-	// Array for Distances to floor
-	floorDistance[(int)FLOOR_ONE] = 7;
-	floorDistance[(int)FLOOR_TWO] = 20;
-	floorDistance[(int)FLOOR_THREE] = 32;
-
 	// Create main elevator structure
 	elv.current_floor = get_floor_position();
 	elv.speed = 127;
