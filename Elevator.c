@@ -143,13 +143,13 @@ void display_floor_number()
 			SensorValue[FTHLight] = 0;
 			break;
 		case FLOOR_TWO:
-			SensorValue[FOLight]  = 1;
+			SensorValue[FOLight]  = 0;
 			SensorValue[FTLight]  = 1;
 			SensorValue[FTHLight] = 0;
 			break;
 		case FLOOR_THREE:
-			SensorValue[FOLight]  = 1;
-			SensorValue[FTLight]  = 1;
+			SensorValue[FOLight]  = 0;
+			SensorValue[FTLight]  = 0;
 			SensorValue[FTHLight] = 1;
 			break;
 		default:
@@ -180,8 +180,10 @@ TASK DEFINITIONS
 // Uses queue to figure out which floor to go to and goes there
 task go_to_floor()
 {
+	// Set the elevator to be running so we can't start this thread again by accident
 	elv.running = true;
 
+	// Loops through entire queue until it is empty (count = 0)
 	while (!isEmpty(elv.q))
 	{
 		// Create Local variable to the floor that we want to go to
@@ -214,6 +216,7 @@ task go_to_floor()
 		delay(500);
 	}
 
+	// We're done moving the elevator, so set running to false for the next "batch" of commands
 	elv.running = false;
 	return;
 }
