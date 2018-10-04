@@ -127,8 +127,8 @@ void move_elevator()
 	}
 
 	// Moves Elevator in the desired direction
-	motor[LeftMotor] = (elv.dir == DIR_UP ? elv.speed : -elv.speed);
-	motor[RightMotor] = (elv.dir == DIR_UP ? elv.speed : -elv.speed);
+	motor[LeftMotor] = (elv.dir == DIR_UP ? -elv.speed : elv.speed);
+	motor[RightMotor] = motor[LeftMotor];
 }
 
 // Displays the current floor number using the leds
@@ -163,11 +163,11 @@ void display_floor_number()
 // Checks the position of the elevator floor using Ultra Sonic Range Finder and returns the appropriate floor
 Floor get_floor_position()
 {
-	if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_ONE])
+	if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_ONE] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_TWO])
 		return FLOOR_ONE;
-	else if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_TWO])
+	else if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_TWO] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE])
 		return FLOOR_TWO;
-	else if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE])
+	else if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_THREE] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE] + 3)
 		return FLOOR_THREE;
 
 	return FLOOR_NIL;
