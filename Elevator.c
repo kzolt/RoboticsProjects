@@ -163,11 +163,11 @@ void display_floor_number()
 // Checks the position of the elevator floor using Ultra Sonic Range Finder and returns the appropriate floor
 Floor get_floor_position()
 {
-	if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_ONE] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_TWO])
+	if (SensorValue[distanceThing] <= floorDistance[(int)FLOOR_TWO])
 		return FLOOR_ONE;
-	else if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_TWO] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE])
+	else if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_ONE] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE])
 		return FLOOR_TWO;
-	else if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_THREE] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE] + 3)
+	else if (SensorValue[distanceThing] >= floorDistance[(int)FLOOR_TWO] && SensorValue[distanceThing] <= floorDistance[(int)FLOOR_THREE] + 3)
 		return FLOOR_THREE;
 
 	return FLOOR_NIL;
@@ -190,7 +190,8 @@ task go_to_floor()
 		Floor ftg = front(elv.q);
 
 		// Checks if the Floor we're trying to go to is our current floor and just breaks
-		if (ftg == elv.current_floor)
+		// Also checks if the floor value is nil, if it is, then it also just dequeues and breaks
+		if (ftg == elv.current_floor || ftg == FLOOR_NIL)
 		{
 			dequeue(elv.q);
 			break;
