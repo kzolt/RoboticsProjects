@@ -70,31 +70,33 @@ typedef struct robot
 	Sensors sensors[SENSOR_AMOUNT];
 } Robot;
 
+Robot rbot;
+
 /**************************************************
  * INITIALIZATION
  **************************************************/
 
 // Initializes sensors inside robot struct
-void init_sensor(Robot& self, int sensor, int key, SensorLocation loc)
+void init_sensor(int key, SensorLocation loc)
 {
-	self.sensors[sensor].key = key;
-	self.sensors[sensor].value = 0;
-	self.sensors[sensor].sevarity_level = NORMAL;
-	self.sensors[sensor].sensor_location = loc;
+	rbot.sensors[loc].key = key;
+	rbot.sensors[loc].value = 0;
+	rbot.sensors[loc].sevarity_level = NORMAL;
+	rbot.sensors[loc].sensor_location = loc;
 }
 
 // Initializes Robot
-void init_robot(Robot& self)
+void init_robot()
 {
-	self.left_speed = FULL_SPEED;
-	self.right_speed = FULL_SPEED;
-	self.dir_vec.x = 0;
-	self.dir_vec.y = 0;
+	rbot.left_speed = FULL_SPEED;
+	rbot.right_speed = FULL_SPEED;
+	rbot.dir_vec.x = 0;
+	rbot.dir_vec.y = 0;
 
-	init_sensor(self, 0, FrontInput, FRONT);
-	init_sensor(self, 1, BackInput, BACK);
-	init_sensor(self, 2, LeftInput, LEFT);
-	init_sensor(self, 3, RightInput, RIGHT);
+	init_sensor(FrontInput, FRONT);
+	init_sensor(BackInput, BACK);
+	init_sensor(LeftInput, LEFT);
+	init_sensor(RightInput, RIGHT);
 }
 
 /**************************************************
@@ -102,223 +104,207 @@ void init_robot(Robot& self)
  **************************************************/
 
 // Get's the values of the sensors and assigns sevarity according to location
-void get_position_and_check_sevarity(Robot& self)
+void get_position_and_check_sevarity()
 {
 	// loops through sensors
 	for (int i = 0; i < SENSOR_AMOUNT; i++)
 	{
 		// Assigns the current value of the sensor to value field
-		self.sensors[i].value = SensorValue[self.sensors[i].key];
+		rbot.sensors[i].value = SensorValue[rbot.sensors[i].key];
 
 		// if the sensor is greater the "level one" then everything is a okay
-		if (self.sensors[i].value > LEVEL_ONE)
-		{
-			self.sensors[i].sevarity_level = NORMAL;
-			return;
-		}
+		if (rbot.sensors[i].value > LEVEL_ONE)
+			rbot.sensors[i].sevarity_level = NORMAL;
 
 		// if the sensor is greater the "level one" then we should probably turn
-		if (self.sensors[i].value <= LEVEL_ONE)
-		{
-			self.sensors[i].sevarity_level = WARNING;
-			return;
-		}
-		
+		if (rbot.sensors[i].value <= LEVEL_ONE)
+			rbot.sensors[i].sevarity_level = WARNING;
+
 		// if the sensor is greater the "level two" then we should really turn
-		if (self.sensors[i].value <= LEVEL_TWO)
-		{
-			self.sensors[i].sevarity_level = MINOR_DANGER;
-			return;
-		}
+		if (rbot.sensors[i].value <= LEVEL_TWO)
+			rbot.sensors[i].sevarity_level = MINOR_DANGER;
 
 		// if the sensor is greater the "level three" then we should really turn
-		if (self.sensors[i].value <= LEVEL_THREE)
-		{
-			self.sensors[i].sevarity_level = DANGER;
-			return;
-		}
-		
+		if (rbot.sensors[i].value <= LEVEL_THREE)
+			rbot.sensors[i].sevarity_level = DANGER;
+
 		// if the sensor is greater the "level four" then we should definetly turn
-		if (self.sensors[i].value <= LEVEL_FOUR)
-		{
-			self.sensors[i].sevarity_level = FATAL;
-			return;
-		}
+		if (rbot.sensors[i].value <= LEVEL_FOUR)
+			rbot.sensors[i].sevarity_level = FATAL;
+	}
+}
+
+void add_vectors(int priority)
+{
+	// set both motors to be the same value
+	if (rbot.sensors[priority].sensor_location == FRONT || rbot.sensors[priority].sensor_location == BACK)
+	{
+		rbot.left_speed = rbot.dir_vec.y;
+		rbot.right_speed = rbot.dir_vec.y;
+	}
+
+	// slow down left motor because we want to turn left, keep right motor at same speed
+	if (rbot.sensors[priority].sensor_location == LEFT)
+	{
+		rbot.left_speed = rbot.dir_vec.y;
+		rbot.right_speed = rbot.dir_vec.y - rbot.dir_vec.x;
+	}
+
+	// slow down right motor because we want to turn right, keep left motor at same speed
+	if (rbot.sensors[priority].sensor_location == RIGHT)
+	{
+		rbot.left_speed = rbot.dir_vec.y - rbot.dir_vec.x;
+		rbot.right_speed = rbot.dir_vec.y;
 	}
 }
 
 // Moves robot based off of what is closer
-void adjust_robot(Robot& self)
+void adjust_robot()
 {
 	// check sevarity level of sensor and get the one with the highest sevarity
 	int priority = 0;
 	for (int i = 0; i < SENSOR_AMOUNT; i++)
 	{
-		if (self.sensors[i].sevarity_level > self.sensors[priority].sevarity_level)
+		if (rbot.sensors[i].sevarity_level > rbot.sensors[priority].sevarity_level)
 			priority = i;
 	}
 
 	// adjust vector accordingly depending on sevarity
-	switch (self.sensors[priority].sevarity_level)
+	switch (rbot.sensors[priority].sevarity_level)
 	{
 	case WARNING:
 		// slow down if we are approaching something
-		if (self.sensors[priority].sensor_location == FRONT)
+		if (rbot.sensors[priority].sensor_location == FRONT)
 		{
-			self.dir_vec.y -= QUARTER_SPEED;
+			rbot.dir_vec.y += QUARTER_SPEED;
 			break;
 		}
 
 		// slow down if we are approaching something
-		if (self.sensors[priority].sensor_location == BACK)
+		if (rbot.sensors[priority].sensor_location == BACK)
 		{
-			self.dir_vec.y += QUARTER_SPEED;
-			break;
-		}
-		
-		// start turning if we are about to hit something
-		if (self.sensors[priority].sensor_location == LEFT)
-		{
-			self.dir_vec.x -= QUARTER_SPEED;
+			rbot.dir_vec.y -= QUARTER_SPEED;
 			break;
 		}
 
 		// start turning if we are about to hit something
-		if (self.sensors[priority].sensor_location == RIGHT)
-			self.dir_vec.x += QUARTER_SPEED;
-		
+		if (rbot.sensors[priority].sensor_location == LEFT)
+		{
+			rbot.dir_vec.x -= QUARTER_SPEED;
+			break;
+		}
+
+		// start turning if we are about to hit something
+		if (rbot.sensors[priority].sensor_location == RIGHT)
+			rbot.dir_vec.x += QUARTER_SPEED;
+
 		break;
 	case MINOR_DANGER:
 		// really slow down if we are approaching something
-		if (self.sensors[priority].sensor_location == FRONT)
+		if (rbot.sensors[priority].sensor_location == FRONT)
 		{
-			self.dir_vec.y -= THIRD_SPEED;
+			rbot.dir_vec.y -= THIRD_SPEED;
 			break;
 		}
 
 		// really slow down if we are approaching something
-		if (self.sensors[priority].sensor_location == BACK)
+		if (rbot.sensors[priority].sensor_location == BACK)
 		{
-			self.dir_vec.y += THIRD_SPEED;
+			rbot.dir_vec.y += THIRD_SPEED;
 			break;
 		}
 
 		// really turn if we are going to hit something
-		if (self.sensors[priority].sensor_location == LEFT)
+		if (rbot.sensors[priority].sensor_location == LEFT)
 		{
-			self.dir_vec.x -= THIRD_SPEED;
+			rbot.dir_vec.x -= THIRD_SPEED;
 			break;
 		}
 
 		// really turn if we are going to hit something
-		if (self.sensors[priority].sensor_location == RIGHT)
-				self.dir_vec.x += THIRD_SPEED;
+		if (rbot.sensors[priority].sensor_location == RIGHT)
+				rbot.dir_vec.x += THIRD_SPEED;
 		break;
 	case DANGER:
-		// genuinly slow down you made man
-		if (self.sensors[priority].sensor_location == FRONT)
+		// genuinly slow down you mad man
+		if (rbot.sensors[priority].sensor_location == FRONT)
 		{
-			self.dir_vec.y -= HALF_SPEED;
+			rbot.dir_vec.y -= HALF_SPEED;
 			break;
 		}
 
-		// genuinly slow down you made man
-		if (self.sensors[priority].sensor_location == BACK)
+		// genuinly slow down you mad man
+		if (rbot.sensors[priority].sensor_location == BACK)
 		{
-			self.dir_vec.y += HALF_SPEED;
-			break;
-		}
-
-		// omg turn
-		if (self.sensors[priority].sensor_location == LEFT)
-		{
-			self.dir_vec.x -= HALF_SPEED;
+			rbot.dir_vec.y += HALF_SPEED;
 			break;
 		}
 
 		// omg turn
-		if (self.sensors[priority].sensor_location == RIGHT)
-				self.dir_vec.x += HALF_SPEED;
+		if (rbot.sensors[priority].sensor_location == LEFT)
+		{
+			rbot.dir_vec.x += HALF_SPEED;
+			break;
+		}
+
+		// omg turn
+		if (rbot.sensors[priority].sensor_location == RIGHT)
+				rbot.dir_vec.x -= HALF_SPEED;
 		break;
 	case FATAL:
 		// jesus christ hit the breaks
-		if (self.sensors[priority].sensor_location == FRONT)
+		if (rbot.sensors[priority].sensor_location == FRONT)
 		{
-			self.dir_vec.y = -FULL_SPEED;
+			rbot.dir_vec.y = -FULL_SPEED;
 			break;
 		}
 
 		// jesus christ hit the breaks
-		if (self.sensors[priority].sensor_location == BACK)
+		if (rbot.sensors[priority].sensor_location == BACK)
 		{
-			self.dir_vec.y = FULL_SPEED;
+			rbot.dir_vec.y = FULL_SPEED;
 			break;
 		}
 
 		// swerve
-		if (self.sensors[priority].sensor_location == LEFT)
+		if (rbot.sensors[priority].sensor_location == LEFT)
 		{
-			self.dir_vec.x = -FULL_SPEED;
+			rbot.dir_vec.x = FULL_SPEED;
 			break;
 		}
 
 		// swerve
-		if (self.sensors[priority].sensor_location == RIGHT)
-				self.dir_vec.x = FULL_SPEED;
+		if (rbot.sensors[priority].sensor_location == RIGHT)
+				rbot.dir_vec.x = -FULL_SPEED;
 		break;
 	default:
 		// Normal settings if everything is normal
-		self.dir_vec.y = FULL_SPEED;
-		self.dir_vec.x = 0;
+		rbot.dir_vec.y = FULL_SPEED;
+		rbot.dir_vec.x = 0;
 		break;
 	}
 
-	add_vectors(self, priority);
+	add_vectors(priority);
 }
 
-void add_vectors(Robot& self, int priority)
-{
-	// set both motors to be the same value
-	if (self.sensors[priority].sensor_location == FRONT || self.sensors[priority].sensor_location == BACK)
-	{
-		self.left_speed = self.dir_vec.y;
-		self.right_speed = self.dir_vec.y;
-	}
-
-	// slow down left motor because we want to turn left, keep right motor at same speed
-	if (self.sensors[priority].sensor_location == LEFT)
-	{
-		self.left_speed = self.dir_vec.y - self.dir_vec.x;
-		self.right_speed = self.dir_vec.y;
-	}
-
-	// slow down right motor because we want to turn right, keep left motor at same speed
-	if (self.sensors[priority].sensor_location == RIGHT)
-	{
-		self.left_speed = self.dir_vec.y;
-		self.right_speed = self.dir_vec.y - self.dir_vec.x;
-	}
-}
-
-void move_robot(Robot& self)
+void move_robot()
 {
 	// gets location of everything, sets sevarity
-	get_position_and_check_sevarity(self);
+	get_position_and_check_sevarity();
 	// adds vectors based off of sevarity and location
-	adjust_robot(self);
+	adjust_robot();
 
 	// sets actual motors to it's respected values
-	motor[LeftMotor] = self.left_speed;
-	motor[RightMotor] = self.right_speed;
+	motor[LeftMotor] = rbot.left_speed;
+	motor[RightMotor] = rbot.right_speed;
 }
 
 task main()
 {
-	Robot rbot;
-	init_robot(rbot);
+	init_robot();
 
 	while (true)
 	{
-		move_robot(rbot);
+		move_robot();
 	}
 }
