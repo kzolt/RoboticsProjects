@@ -117,19 +117,19 @@ void get_position_and_check_sevarity()
 			rbot.sensors[i].sevarity_level = NORMAL;
 
 		// if the sensor is greater the "level one" then we should probably turn
-		if (rbot.sensors[i].value <= LEVEL_ONE)
+		if (rbot.sensors[i].value >= LEVEL_ONE)
 			rbot.sensors[i].sevarity_level = WARNING;
 
 		// if the sensor is greater the "level two" then we should really turn
-		if (rbot.sensors[i].value <= LEVEL_TWO)
+		if (rbot.sensors[i].value >= LEVEL_TWO)
 			rbot.sensors[i].sevarity_level = MINOR_DANGER;
 
 		// if the sensor is greater the "level three" then we should really turn
-		if (rbot.sensors[i].value <= LEVEL_THREE)
+		if (rbot.sensors[i].value >= LEVEL_THREE)
 			rbot.sensors[i].sevarity_level = DANGER;
 
 		// if the sensor is greater the "level four" then we should definetly turn
-		if (rbot.sensors[i].value <= LEVEL_FOUR)
+		if (rbot.sensors[i].value >= LEVEL_FOUR)
 			rbot.sensors[i].sevarity_level = FATAL;
 	}
 }
